@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import br.com.alura.spring.data.model.Cargo;
@@ -196,12 +200,16 @@ public class FuncionarioService {
 				System.out.println((i + 1) + " - " + unidadesFuncionario.get(i).getDescricao());
 			}
 			String inputUsuario = scanner.nextLine();
-			Integer inputUsuarioInt = Integer.valueOf(inputUsuario);
-			if (inputUsuario.isEmpty()) {
-				System.out.println("Erro: Unidade não selecionada, operação cancelada.");
+			Integer inputUsuarioInt;
+
+			try {
+				inputUsuarioInt = Integer.valueOf(inputUsuario);
+			} catch (NumberFormatException e) {
+				System.out.println("Erro: Opção inválida, operação cancelada.");
 				return;
 			}
-			if (inputUsuario.equals(0)) {
+
+			if (inputUsuarioInt.equals(0)) {
 				break;
 			}
 
@@ -348,9 +356,31 @@ public class FuncionarioService {
 	}
 
 	private void listarTodos(Scanner scanner) {
+		
+		System.out.println("Informe a página que deseja consultar: ");
+		
+		String inputUsuario = scanner.nextLine();
+		
+		Integer pageNumber;
+		
+		try {
+			pageNumber = Integer.valueOf(inputUsuario);
+		} catch (NumberFormatException e) {
+			System.out.println("Página informada inválida. Operação cancelada.");
+			return;
+		}
+		
+		Integer PageIndex = pageNumber - 1;
+		
+		Pageable pageable = PageRequest.of(PageIndex, 5, Sort.by(Sort.Direction.ASC, "nome"));
+		
 		System.out.println("Funcionarios: ");
 
-		List<Funcionario> funcionarioLista = this.funcionarioRepository.findAll();
+		Page<Funcionario> funcionarioLista = this.funcionarioRepository.findAll(pageable);
+		
+		System.out.println("Página atual: " + (funcionarioLista.getNumber() + 1));
+		System.out.println("Numero total de elementos: " + funcionarioLista.getTotalElements());
+		System.out.println("Numero total de páginas: " + funcionarioLista.getTotalPages());
 
 		if (funcionarioLista.isEmpty()) {
 			System.out.println("Nenhum Registro Encontrado!");
