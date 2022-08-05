@@ -376,7 +376,7 @@ public class FuncionarioService {
 		
 		System.out.println("Funcionarios: ");
 
-		Page<Funcionario> funcionarioLista = this.funcionarioRepository.findAll(pageable);
+		Page<Funcionario> funcionarioLista = this.funcionarioRepository.findAllFuncionarioWithEagerUnidadesAndCargo(pageable);
 		
 		System.out.println("Página atual: " + (funcionarioLista.getNumber() + 1));
 		System.out.println("Numero total de elementos: " + funcionarioLista.getTotalElements());
